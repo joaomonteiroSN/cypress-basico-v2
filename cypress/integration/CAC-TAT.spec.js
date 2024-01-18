@@ -35,9 +35,33 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         cy.get('.error').should('be.visible')
     })
 
-    it.only('campo telefone permanece vazio se for preenchido com valor nao-numerico', function () {
+    it('campo telefone permanece vazio se for preenchido com valor nao-numerico', function () {
         cy.get('#phone')
             .type('abcdefghij')
             .should('have.value', '')
+    })
+
+    it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function(){
+        cy.get('#firstName').type('João')
+        cy.get('#lastName').type('Monteiro')
+        cy.get('#email').type('joaomonteiroop@gmail.com')
+        cy.get('#phone-checkbox').click()
+        cy.get('#open-text-area').type('test')
+        cy.get('button[type="submit"]').click()
+
+        cy.get('.error').should('be.visible')
+
+    })
+
+    it.only('preenche e limpa os campos nome, sobrenome, email e telefone', function(){
+
+        
+
+        cy.get('#firstName').type('João').should('have.value', 'João').clear().should('have.value', '');
+        cy.get('#lastName').type('Monteiro').should('have.value', 'Monteiro').clear().should('have.value', '');
+        cy.get('#email').type('joaomonteiroop@gmail.com').should('have.value', 'joaomonteiroop@gmail.com').clear().should('have.value', '');
+        cy.get('#phone').type(999999999).should('have.value', '999999999').clear().should('have.value', '');
+
+        cy.get('button[type="submit"]').click()
     })
 })
