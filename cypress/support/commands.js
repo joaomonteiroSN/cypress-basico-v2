@@ -35,3 +35,9 @@ Cypress.Commands.add('fillMandatoryFieldsAndSubmit', function () {
 
     cy.contains('button', 'Enviar').click()
 })
+
+
+Cypress.Commands.add('selectFromValue', function() {
+    //selecionando pelo id, por ser mais específico
+    cy.get('#product').select('mentoria').should('have.value', 'mentoria')
+})

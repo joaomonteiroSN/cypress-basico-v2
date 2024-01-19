@@ -4,7 +4,7 @@ describe('Central de Atendimento ao Cliente TAT', function () {
 
     beforeEach(function () {
         cy.visit('./src/index.html')
-    });
+    })
 
     it('verifica o título da aplicação', function () {
 
@@ -41,17 +41,17 @@ describe('Central de Atendimento ao Cliente TAT', function () {
             .should('have.value', '')
     })
 
-    it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function(){
-        cy.get('#firstName').type('João')
-        cy.get('#lastName').type('Monteiro')
-        cy.get('#email').type('joaomonteiroop@gmail.com')
-        cy.get('#phone-checkbox').click()
-        cy.get('#open-text-area').type('test')
-        cy.get('button[type="submit"]').click()
+    // it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function(){
+    //     cy.get('#firstName').type('João')
+    //     cy.get('#lastName').type('Monteiro')
+    //     cy.get('#email').type('joaomonteiroop@gmail.com')
+    //     cy.get('#phone-checkbox').click()
+    //     cy.get('#open-text-area').type('test')
+    //     cy.get('button[type="submit"]').click()
 
-        cy.get('.error').should('be.visible')
+    //     cy.get('.error').should('be.visible')
 
-    })
+    // })
 
     it('preenche e limpa os campos nome, sobrenome, email e telefone', function(){
 
@@ -71,9 +71,84 @@ describe('Central de Atendimento ao Cliente TAT', function () {
     })
 
     
-    it.only('envia o formuário com sucesso usando um comando customizado', function() {
+    it('envia o formuário com sucesso usando um comando customizado', function() {
         cy.fillMandatoryFieldsAndSubmit()
 
         cy.get('.success').should('be.visible')
     })
+
+    //Selecionando em campos de seleção suspensa
+    it('seleciona um produto (YouTube) por seu texto', function() {
+        cy.get('select').select('YouTube').should('have.value', 'youtube')
+    })
+
+    it('seleciona um produto (Mentoria) por seu valor (value)', function() {
+        cy.selectFromValue()
+    })
+
+    it('seleciona um produto (Blog) por seu índice', function() {
+        cy.get('#product').select(1).should('have.value', 'blog')
+    })
+
+    //Selecionando inputs do tipo radio
+
+    it('marca o tipo de atendimento "Feedback"', function() {
+        cy.get('input[type="radio"][value="feedback"]').check('feedback').should('be.checked')
+    })
+
+    it('marca cada tipo de atendimento', function() {
+
+        //fazendo de forma braçal
+        // cy.get('input[type="radio"][value="ajuda"]').check().should('be.checked')
+        // cy.get('input[type="radio"][value="elogio"]').check().should('be.checked')
+        // cy.get('input[type="radio"][value="feedback"]').check().should('be.checked')
+
+        //forma mais inteligente
+
+        cy.get('input[type="radio"]')
+            .check()
+            .should('have.length', 3)
+            .each(function($radio) {
+                cy.wrap($radio).check()
+                cy.wrap($radio).should('be.checked')
+            })
+    })
+
+    //Marcando e desmarcando input do tipo checkbox
+
+    it('marca ambos checkboxes, depois desmarca o último', function(){
+        cy.get('input[type=checkbox]')
+            //.as('checkboxes')
+            .check()
+    // ---- outra forma de fazer
+            .each(i => {
+                cy.get(i).should('be.checked')
+            })
+        cy.get('input[type="checkbox"]').last().uncheck()
+            .should('not.be.checked')
+
+        // cy.get('@checkboxes')
+        //     .each(checkbox => {
+        //         expect(checkbox[0].checked).to.equal(true)
+        //     })
+            
+    })
+
+    it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function(){
+        cy.get('#firstName').type('João')
+        cy.get('#lastName').type('Monteiro')
+        cy.get('#email').type('joaomonteiroop@gmail.com')
+        cy.get('#phone-checkbox').check()
+        cy.get('#open-text-area').type('test')
+        cy.get('button[type="submit"]').click()
+
+        cy.get('.error').should('be.visible')
+
+    })
+
+    //fazendo o upload de arquivos no cypress
+    it.only('seleciona um arquivo da pasta fixtures', function(){
+        cy.get('#file-upload').selectFile('cypress/fixtures/example.json')
+    })
+
 })
