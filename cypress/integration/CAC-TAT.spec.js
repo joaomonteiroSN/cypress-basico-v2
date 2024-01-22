@@ -166,7 +166,7 @@ describe('Central de Atendimento ao Cliente TAT', function () {
             })
     })
 
-    it.only('seleciona um arquivo utilizando uma fixture para a qual foi dada um alias', () => {
+    it('seleciona um arquivo utilizando uma fixture para a qual foi dada um alias', () => {
 
         cy.fixture('example.json').as('sampleFile')
         cy.get('#file-upload')
@@ -174,6 +174,33 @@ describe('Central de Atendimento ao Cliente TAT', function () {
             .should( input => {
                 expect(input[0].files[0].name).to.equal('example.json')
             })
+    })
+
+    //lidando com links que abrem em outra aba
+    it('verifica que a política de privacidade abre em outra aba sem a necessidade de um clique', function(){
+
+        cy.get('#privacy a').should('have.attr', 'target', '_blank')
+    })
+    
+    it('acessa a página da política de privacidade removendo o target e então clicando no link', () => {
+
+        //o cypress não sabe lidar com páginas abertas em novas abas
+        cy.get('#privacy a').invoke('removeAttr', 'target').click()
+
+        //Verificando se esse texto está visível na nova aba
+        cy.contains('Talking About Testing').should('be.visible')
+    })
+    
+    
+    it('testa a página da política de privacidade de forma independente', () => {
+        cy.visit('./src/privacy.html')
+        cy.contains('Talking About Testing').should('be.visible')
+    })
+
+    //Simulando o viewport de um dispositivo móvel
+
+    it.only('', () => {
+        
     })
 
 })
