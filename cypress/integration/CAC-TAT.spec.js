@@ -6,6 +6,11 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         cy.visit('./src/index.html')
     })
 
+    Cypress._.times(6, () => it('verifica o título da aplicação', function () {
+
+        cy.title().should('equal', 'Central de Atendimento ao Cliente TAT');
+    }))
+
     it('verifica o título da aplicação', function () {
 
         cy.title().should('equal', 'Central de Atendimento ao Cliente TAT');
@@ -15,6 +20,8 @@ describe('Central de Atendimento ao Cliente TAT', function () {
 
         const longText = 'lorin loren loreanin loremaind lorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaindlorin loren loreanin loremaind'
 
+        cy.clock()
+
         cy.get('#firstName').type('João')
         cy.get('#lastName').type('Monteiro')
         cy.get('#email').type('joaomonteiroop@gmail.com')
@@ -22,6 +29,12 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         cy.get('button[type="submit"]').click()
 
         cy.get('.success').should("be.visible")
+
+        cy.tick(3000)
+
+        cy.get('.success').should("not.be.visible")
+
+
     })
 
     it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', function () {
@@ -152,7 +165,7 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         cy.get('#file-upload')
             .should('not.have.value')
             .selectFile('cypress/fixtures/example.json')
-            .should( input => {
+            .should(input => {
                 expect(input[0].files[0].name).to.equal('example.json')
             })
     })
@@ -160,8 +173,8 @@ describe('Central de Atendimento ao Cliente TAT', function () {
     it('seleciona um arquivo simulando um drag-and-drop', () => {
         cy.get('#file-upload')
             .should('not.have.value')
-            .selectFile('cypress/fixtures/example.json', { action:"drag-drop" })
-            .should( input => {
+            .selectFile('cypress/fixtures/example.json', { action: "drag-drop" })
+            .should(input => {
                 expect(input[0].files[0].name).to.equal('example.json')
             })
     })
@@ -171,17 +184,17 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         cy.fixture('example.json').as('sampleFile')
         cy.get('#file-upload')
             .selectFile('@sampleFile')
-            .should( input => {
+            .should(input => {
                 expect(input[0].files[0].name).to.equal('example.json')
             })
     })
 
     //lidando com links que abrem em outra aba
-    it('verifica que a política de privacidade abre em outra aba sem a necessidade de um clique', function(){
+    it('verifica que a política de privacidade abre em outra aba sem a necessidade de um clique', function () {
 
         cy.get('#privacy a').should('have.attr', 'target', '_blank')
     })
-    
+
     it('acessa a página da política de privacidade removendo o target e então clicando no link', () => {
 
         //o cypress não sabe lidar com páginas abertas em novas abas
@@ -190,12 +203,50 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         //Verificando se esse texto está visível na nova aba
         cy.contains('Talking About Testing').should('be.visible')
     })
-    
-    
+
+
     it('testa a página da política de privacidade de forma independente', () => {
         cy.visit('./src/privacy.html')
         cy.contains('Talking About Testing').should('be.visible')
     })
+
+    it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+        cy.get('.success')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Mensagem enviada com sucesso.')
+          .invoke('hide')
+          .should('not.be.visible')
+        cy.get('.error')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Valide os campos obrigatórios!')
+          .invoke('hide')
+          .should('not.be.visible')
+      })
+
+      it('preenche a area de texto usando o comando invoke', () => {
+        const texto = Cypress._.repeat('Texto aleatório para realizar teste', 10);
+
+        cy.get('#open-text-area').invoke('val', texto).should('have.value', texto)
+      })
+
+      //utilizando o request
+
+      it('faz uma requisição HTTP', () => {
+        cy.request("https://cac-tat.s3.eu-central-1.amazonaws.com/index.html").should(function(response) {
+            const { status, statusText, body } = response;
+            expect(status).to.equal(200);
+            expect(statusText).to.equal('OK');
+            expect(body).to.include('CAC TAT');
+        })
+      })
+
+      it.only('encontra o gato na aplicação CAC TAT', () => {
+        cy.get('#cat').invoke('show').should('be.visible')
+      })
 
 
 })
